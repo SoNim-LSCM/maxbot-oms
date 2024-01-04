@@ -26,22 +26,22 @@ func MqttSetup() {
 	username := os.Getenv("MQTT_USERNAME")
 	password := os.Getenv("MQTT_PASSWORD")
 	broker := os.Getenv("MQTT_BROKER")
-	clientId := "go_" + strconv.Itoa(rand.Intn(100))
+	clientId := "go" + strconv.Itoa(rand.Intn(10000))
 	port := 1883
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
+	// opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
+	opts.AddBroker("tcp://test.mosquitto.org:1883")
 	fmt.Printf("tcp://%s:%d %s (%s) %s\n", broker, port, username, password, clientId)
 	opts.SetClientID(clientId)
-	opts.SetUsername(username)
-	opts.SetPassword(password)
+	// opts.SetUsername(username)
+	// opts.SetPassword(password)
 	opts.SetDefaultPublishHandler(messagePubHandler)
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
 	client := mqtt.NewClient(opts)
 	token := client.Connect()
-	// token.Wait()
-	// token.WaitTimeout(5 * time.Second)
-	if token.Error() != nil {
+
+	if token.Wait() && token.Error() != nil {
 		fmt.Println(token.Error().Error())
 		errorHandler.CheckError(token.Error(), "MQTT FAIL")
 	}
